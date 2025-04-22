@@ -1,0 +1,94 @@
+-- Crear tabla de botillerías
+CREATE TABLE IF NOT EXISTS botillerias (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    dueño VARCHAR(255) NOT NULL,
+    rut_empresa VARCHAR(20) UNIQUE NOT NULL,
+    direccion VARCHAR(255) NOT NULL,
+    horario_inicio TIME NOT NULL,
+    horario_termino TIME NOT NULL,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear tabla de categorías de productos
+CREATE TABLE IF NOT EXISTS categorias (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear tabla de productos
+CREATE TABLE IF NOT EXISTS productos (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    precio DECIMAL(10, 2) NOT NULL,
+    cantidad INT NOT NULL,
+    barcode VARCHAR(255) UNIQUE NOT NULL,
+    categoria_id INT REFERENCES categorias(id) ON DELETE SET NULL,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear tabla de usuarios (para el login y acceso)
+CREATE TABLE IF NOT EXISTS usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre_usuario VARCHAR(100) UNIQUE NOT NULL,
+    contrasena VARCHAR(255) NOT NULL,
+    rol VARCHAR(50) NOT NULL CHECK (rol IN ('admin', 'empleado')),
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear tabla de ventas
+CREATE TABLE IF NOT EXISTS ventas (
+    id SERIAL PRIMARY KEY,
+    botilleria_id INT REFERENCES botillerias(id) ON DELETE CASCADE,
+    total DECIMAL(10, 2) NOT NULL,
+    cantidad_productos INT NOT NULL,
+    fecha_venta TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear tabla de detalles de venta (productos vendidos)
+CREATE TABLE IF NOT EXISTS detalles_venta (
+    id SERIAL PRIMARY KEY,
+    venta_id INT REFERENCES ventas(id) ON DELETE CASCADE,
+    producto_id INT REFERENCES productos(id) ON DELETE CASCADE,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10, 2) NOT NULL,
+    subtotal DECIMAL(10, 2) NOT NULL
+);
+
+-- Crear tabla de inventarios (historial de cambios de inventario)
+CREATE TABLE IF NOT EXISTS inventarios (
+    id SERIAL PRIMARY KEY,
+    producto_id INT REFERENCES productos(id) ON DELETE CASCADE,
+    cantidad_cambiada INT NOT NULL,
+    tipo_cambio VARCHAR(50) CHECK (tipo_cambio IN ('entrada', 'salida')),
+    motivo TEXT,
+    fecha_cambio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear tabla de pagos (para registrar el tipo de pago de la venta)
+CREATE TABLE IF NOT EXISTS pagos (
+    id SERIAL PRIMARY KEY,
+    venta_id INT REFERENCES ventas(id) ON DELETE CASCADE,
+    tipo_pago VARCHAR(50) CHECK (tipo_pago IN ('efectivo', 'tarjeta', 'transferencia', 'otros')) NOT NULL,
+    monto DECIMAL(10, 2) NOT NULL,
+    fecha_pago TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear tabla de descuentos (si se aplican descuentos a productos)
+CREATE TABLE IF NOT EXISTS descuentos (
+    id SERIAL PRIMARY KEY,
+    nombre_descuento VARCHAR(100) NOT NULL,
+    porcentaje DECIMAL(5, 2) NOT NULL CHECK (porcentaje >= 0 AND porcentaje <= 100),
+    fecha_inicio TIMESTAMP NOT NULL,
+    fecha_fin TIMESTAMP,
+    descripcion TEXT
+);
+
+-- Relacionar productos con descuentos (muchos a muchos)
+CREATE TABLE IF NOT EXISTS productos_descuentos (
+    producto_id INT REFERENCES productos(id) ON DELETE CASCADE,
+    descuento_id INT REFERENCES descuentos(id) ON DELETE CASCADE,
+    PRIMARY KEY (producto_id, descuento_id)
+);
