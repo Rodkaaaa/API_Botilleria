@@ -1,0 +1,54 @@
+# Entornos virtuales
+venv/
+env/
+.venv/
+varv/
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos de desarrollo
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Archivos de configuración y entornos
+.env
+.venv
+.env.local
+.env.dev
+.env.prod
+
+# Archivos de base de datos
+*.db
+*.sqlite
+*.sqlite3
+
+# Archivos generados por el sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+*.log
+
+# Archivos de coverage
+.coverage
+htmlcov/
+
+# Archivos de distribución / build
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Archivos de Jupyter Notebook
+.ipynb_checkpoints
+
+# Archivos de testing
+.pytest_cache/
+
+# Archivos específicos del proyecto (si es necesario)
+/BIOQuery.txt
